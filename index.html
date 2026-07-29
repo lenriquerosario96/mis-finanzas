@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Mis Finanzas" />
-  <meta name="description" content="Control móvil de ingresos, gastos, ahorro, presupuestos y deudas." />
+  <meta name="description" content="Control móvil de ingresos, gastos, presupuestos y deudas." />
   <style>
     :root {
       --bg: #f4f7f6;
@@ -22,7 +22,6 @@
       --income: #16803c;
       --expense: #c13b3b;
       --warning: #a86500;
-      --saving: #5b4bb7;
       --border: #dce6e3;
       --shadow: 0 8px 24px rgba(14, 70, 64, .08);
       --radius: 18px;
@@ -103,7 +102,6 @@
     .income { color: var(--income); }
     .expense { color: var(--expense); }
     .warning { color: var(--warning); }
-    .saving { color: var(--saving); }
 
     .section-title {
       display: flex;
@@ -327,11 +325,6 @@
     }
     .quick-action.expense-action { background: var(--primary); color: white; }
     .quick-action.income-action { background: white; color: var(--income); border: 1px solid var(--border); }
-    .quick-action.saving-action { background: #f1efff; color: var(--saving); border: 1px solid #d8d2ff; }
-    .saving-options { padding: 12px; border: 1px solid #d8d2ff; border-radius: 13px; background: #f8f7ff; }
-    .check-row { display:flex; align-items:flex-start; gap:10px; font-weight:800; }
-    .check-row input { width:20px; height:20px; margin-top:1px; flex:0 0 auto; }
-    .hidden-field { display:none !important; }
 
     .plan-grid, .budget-overview-grid {
       display: grid;
@@ -428,7 +421,7 @@
     .quick-dialog-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
     .quick-dialog-head .dialog-title { margin:0; }
     .close-x { border:0; background:#edf2f1; width:34px; height:34px; border-radius:50%; font-size:1.15rem; }
-    .quick-type-toggle { display:grid; grid-template-columns:repeat(3, 1fr); gap:7px; padding:4px; background:#eef4f2; border-radius:13px; }
+    .quick-type-toggle { display:grid; grid-template-columns:1fr 1fr; gap:7px; padding:4px; background:#eef4f2; border-radius:13px; }
     .quick-type-toggle button { border:0; border-radius:10px; padding:9px; font-weight:900; color:var(--muted); background:transparent; }
     .quick-type-toggle button.active { background:white; color:var(--primary); box-shadow:0 3px 10px rgba(20,70,64,.08); }
 
@@ -448,7 +441,7 @@
       .header-row { align-items: flex-start; }
       .month-picker { min-width: 120px; max-width: 46%; }
       .metric .value { font-size: 1.22rem; }
-      .dashboard-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .dashboard-actions { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -471,9 +464,8 @@
       </div>
 
       <div class="dashboard-actions">
-        <button id="dashboardAddExpense" class="quick-action expense-action" type="button">＋ Gasto</button>
+        <button id="dashboardAddExpense" class="quick-action expense-action" type="button">＋ Añadir gasto</button>
         <button id="dashboardAddIncome" class="quick-action income-action" type="button">＋ Ingreso</button>
-        <button id="dashboardAddSaving" class="quick-action saving-action" type="button">＋ Ahorro</button>
       </div>
 
       <div id="dueAlert" class="alert-strip hidden" role="status" aria-live="polite"></div>
@@ -492,12 +484,7 @@
         <div class="card metric">
           <div class="label">Balance</div>
           <div id="balanceTotal" class="value">0,00 €</div>
-          <small>Ingresos − gastos − ahorro que reduce tu disponible</small>
-        </div>
-        <div class="card metric">
-          <div class="label">Ahorro del mes</div>
-          <div id="savingTotal" class="value saving">0,00 €</div>
-          <small id="savingCount">0 registros</small>
+          <small>Ingresos menos gastos</small>
         </div>
         <div class="card metric">
           <div class="label">Deuda pendiente</div>
@@ -544,7 +531,6 @@
               <select id="txType" required>
                 <option value="expense">Gasto</option>
                 <option value="income">Ingreso</option>
-                <option value="saving">Ahorro</option>
               </select>
             </div>
             <div class="field">
@@ -578,14 +564,7 @@
             </div>
             <div class="field full">
               <label for="txDescription">Descripción</label>
-              <input id="txDescription" maxlength="80" placeholder="Ej.: supermercado, nómina, fondo de ahorro…" />
-            </div>
-            <div id="txSavingOptions" class="field full saving-options hidden-field">
-              <label class="check-row" for="txSavingAlreadyDeducted">
-                <input id="txSavingAlreadyDeducted" type="checkbox" />
-                <span>Este ahorro ya viene descontado del ingreso neto que recibo</span>
-              </label>
-              <p class="form-help">Márcalo cuando tu nómina ya llega con el fondo descontado. El ahorro se contabiliza, pero no se resta una segunda vez de tu balance.</p>
+              <input id="txDescription" maxlength="80" placeholder="Ej.: supermercado, nómina, gasolina…" />
             </div>
           </div>
           <button class="btn" type="submit">Guardar movimiento</button>
@@ -599,7 +578,6 @@
             <option value="all">Todos</option>
             <option value="expense">Solo gastos</option>
             <option value="income">Solo ingresos</option>
-            <option value="saving">Solo ahorros</option>
           </select>
           <select id="filterCategory"><option value="all">Todas las categorías</option></select>
           <input id="filterSearch" class="wide" placeholder="Buscar por descripción…" />
@@ -646,8 +624,9 @@
 
     <section id="debts" class="page">
       <div class="card">
-        <h2 class="section-title">Añadir deuda</h2>
+        <h2 id="debtFormTitle" class="section-title">Añadir deuda</h2>
         <form id="debtForm">
+          <input id="debtEditId" type="hidden" />
           <div class="form-grid">
             <div class="field full">
               <label for="debtName">Entidad o persona</label>
@@ -699,7 +678,10 @@
             <summary>¿Qué dato pongo como pendiente actual?</summary>
             <p>Usa el importe que tu banco llama <strong>capital pendiente</strong>, <strong>saldo vivo</strong> o <strong>pendiente de amortizar</strong>. No multipliques cuota × meses porque esa suma incluye intereses futuros.</p>
           </details>
-          <button class="btn" type="submit">Guardar deuda</button>
+          <div class="btn-row">
+            <button id="debtSubmitButton" class="btn" type="submit">Guardar deuda</button>
+            <button id="debtCancelEdit" class="btn secondary hidden" type="button">Cancelar edición</button>
+          </div>
         </form>
         <p class="note"><strong>Cálculo estimado:</strong> supone cuotas mensuales iguales y sin una cuota final extraordinaria. La TEA puede diferir del contrato si hay seguros, comisiones, carencias o cambios de interés.</p>
       </div>
@@ -741,7 +723,7 @@
         </div>
         <p class="note">Android/Chrome: menú ⋮ → Añadir a pantalla de inicio. iPhone/Safari: Compartir → Añadir a pantalla de inicio.</p>
       </div>
-      <div class="version-tag">Mis Finanzas V4.2 · Control de duplicados y ahorro separado del gasto</div>
+      <div class="version-tag">Mis Finanzas V4.3 · Ahora puedes editar tus deudas sin perder los movimientos históricos</div>
     </section>
   </main>
 
@@ -765,7 +747,6 @@
         <div class="quick-type-toggle" role="group" aria-label="Tipo de movimiento">
           <button id="quickExpenseType" class="active" type="button" data-quick-type="expense">Gasto</button>
           <button id="quickIncomeType" type="button" data-quick-type="income">Ingreso</button>
-          <button id="quickSavingType" type="button" data-quick-type="saving">Ahorro</button>
         </div>
         <input id="quickType" type="hidden" value="expense" />
         <div class="field">
@@ -779,14 +760,7 @@
         </div>
         <div class="field">
           <label for="quickDescription">Descripción (opcional)</label>
-          <input id="quickDescription" maxlength="80" placeholder="Ej.: supermercado o fondo de ahorro" />
-        </div>
-        <div id="quickSavingOptions" class="field saving-options hidden-field">
-          <label class="check-row" for="quickSavingAlreadyDeducted">
-            <input id="quickSavingAlreadyDeducted" type="checkbox" />
-            <span>Ya viene descontado de mi ingreso neto</span>
-          </label>
-          <p class="form-help">Así se suma a tu ahorro sin descontarlo dos veces del dinero disponible.</p>
+          <input id="quickDescription" maxlength="80" placeholder="Ej.: supermercado" />
         </div>
         <div class="form-grid">
           <div class="field">
@@ -818,7 +792,6 @@
           <label for="paymentDate">Fecha</label>
           <input id="paymentDate" type="date" required />
         </div>
-        <p class="form-help">La aplicación comprobará si ya registraste una cuota de esta deuda durante el mismo mes.</p>
         <div class="btn-row">
           <button class="btn" type="submit">Guardar pago</button>
           <button class="btn secondary" type="button" id="closePayment">Cancelar</button>
@@ -836,12 +809,11 @@
       const STORAGE_KEY = 'misFinanzasMovil_v1';
       const CATEGORIES = {
         expense: ['Vivienda', 'Alimentación', 'Transporte', 'Servicios', 'Salud', 'Educación', 'Ocio', 'Ropa', 'Familia', 'Pago de deudas', 'Impuestos', 'Otros gastos'],
-        income: ['Nómina', 'Trabajo extra', 'Ventas', 'Ayuda familiar', 'Alquiler', 'Devolución', 'Otros ingresos'],
-        saving: ['Fondo de ahorro bloqueado', 'Fondo de emergencia', 'Ahorro para una meta', 'Inversión', 'Otros ahorros']
+        income: ['Nómina', 'Trabajo extra', 'Ventas', 'Ayuda familiar', 'Alquiler', 'Devolución', 'Otros ingresos']
       };
 
       const defaultData = () => ({
-        version: 3,
+        version: 2,
         transactions: [],
         debts: [],
         budgets: [],
@@ -906,6 +878,17 @@
 
         const number = Number(text);
         return Number.isFinite(number) ? number : 0;
+      }
+
+
+      function formatInputNumber(value) {
+        const number = safeNumber(value);
+        if (!Number.isFinite(number)) return '';
+        return new Intl.NumberFormat('es-ES', {
+          useGrouping: false,
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        }).format(number);
       }
 
       function monthSerial(value) {
@@ -1000,7 +983,6 @@
         fillCategorySelect(el('txCategory'), 'expense');
         fillCategorySelect(el('quickCategory'), 'expense');
         fillCategorySelect(el('budgetCategory'), 'expense');
-        updateTransactionTypeUI('expense');
         refreshFilterCategories();
         bindEvents();
         renderQuickCategoryChips();
@@ -1020,7 +1002,8 @@
         });
 
         el('txType').addEventListener('change', event => {
-          updateTransactionTypeUI(event.target.value);
+          fillCategorySelect(el('txCategory'), event.target.value);
+          el('txNature').disabled = event.target.value === 'income';
         });
 
         el('transactionForm').addEventListener('submit', addTransaction);
@@ -1028,12 +1011,12 @@
         el('fabAddExpense').addEventListener('click', () => openQuickTransaction('expense'));
         el('dashboardAddExpense').addEventListener('click', () => openQuickTransaction('expense'));
         el('dashboardAddIncome').addEventListener('click', () => openQuickTransaction('income'));
-        el('dashboardAddSaving').addEventListener('click', () => openQuickTransaction('saving'));
         el('closeQuickTransaction').addEventListener('click', () => el('quickTransactionDialog').close());
         document.querySelectorAll('[data-quick-type]').forEach(button => button.addEventListener('click', () => setQuickType(button.dataset.quickType)));
         el('quickCategory').addEventListener('change', renderQuickCategoryChips);
         el('budgetForm').addEventListener('submit', addBudget);
-        el('debtForm').addEventListener('submit', addDebt);
+        el('debtForm').addEventListener('submit', saveDebt);
+        el('debtCancelEdit').addEventListener('click', resetDebtForm);
         ['debtRemaining', 'debtInstallment', 'debtTermMonths'].forEach(id => {
           el(id).addEventListener('input', updateLoanPreview);
         });
@@ -1060,23 +1043,12 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
-      function updateTransactionTypeUI(type) {
-        const normalized = ['expense', 'income', 'saving'].includes(type) ? type : 'expense';
-        fillCategorySelect(el('txCategory'), normalized);
-        el('txNature').disabled = normalized === 'income';
-        if (normalized === 'saving') el('txNature').value = 'fixed';
-        el('txSavingOptions').classList.toggle('hidden-field', normalized !== 'saving');
-        if (normalized !== 'saving') el('txSavingAlreadyDeducted').checked = false;
-      }
-
       function setQuickType(type) {
-        const normalized = ['expense', 'income', 'saving'].includes(type) ? type : 'expense';
+        const normalized = type === 'income' ? 'income' : 'expense';
         el('quickType').value = normalized;
-        el('quickDialogTitle').textContent = normalized === 'expense' ? 'Añadir gasto' : normalized === 'income' ? 'Añadir ingreso' : 'Añadir ahorro';
+        el('quickDialogTitle').textContent = normalized === 'expense' ? 'Añadir gasto' : 'Añadir ingreso';
         document.querySelectorAll('[data-quick-type]').forEach(button => button.classList.toggle('active', button.dataset.quickType === normalized));
         fillCategorySelect(el('quickCategory'), normalized);
-        el('quickSavingOptions').classList.toggle('hidden-field', normalized !== 'saving');
-        if (normalized !== 'saving') el('quickSavingAlreadyDeducted').checked = false;
         renderQuickCategoryChips();
       }
 
@@ -1084,7 +1056,7 @@
         setQuickType(type);
         el('quickTransactionForm').reset();
         el('quickDate').value = todayISO();
-        el('quickMethod').value = type === 'expense' ? 'Tarjeta' : type === 'saving' ? 'Domiciliación' : 'Transferencia';
+        el('quickMethod').value = type === 'expense' ? 'Tarjeta' : 'Transferencia';
         setQuickType(type);
         el('quickTransactionDialog').showModal();
         setTimeout(() => el('quickAmount').focus(), 80);
@@ -1094,9 +1066,7 @@
         const type = el('quickType')?.value || 'expense';
         const preferred = type === 'expense'
           ? ['Alimentación', 'Transporte', 'Ocio', 'Vivienda', 'Servicios', 'Otros gastos']
-          : type === 'income'
-            ? ['Nómina', 'Trabajo extra', 'Ventas', 'Otros ingresos']
-            : ['Fondo de ahorro bloqueado', 'Fondo de emergencia', 'Ahorro para una meta', 'Otros ahorros'];
+          : ['Nómina', 'Trabajo extra', 'Ventas', 'Otros ingresos'];
         const selected = el('quickCategory')?.value;
         el('quickCategoryChips').innerHTML = preferred.map(category => `<button class="category-chip ${selected === category ? 'active' : ''}" type="button" data-quick-category="${escapeAttr(category)}">${escapeHTML(category)}</button>`).join('');
         el('quickCategoryChips').querySelectorAll('[data-quick-category]').forEach(button => {
@@ -1107,88 +1077,16 @@
         });
       }
 
-      function normalizeMovementText(value) {
-        return String(value || '').trim().toLocaleLowerCase('es-ES').replace(/\s+/g, ' ');
-      }
-
-      function sameAmount(a, b) {
-        return Math.abs(safeNumber(a) - safeNumber(b)) < 0.005;
-      }
-
-      function movementTypeName(type) {
-        return type === 'income' ? 'ingreso' : type === 'saving' ? 'ahorro' : 'gasto';
-      }
-
-      function findPotentialDuplicate(candidate) {
-        const candidateMonth = String(candidate.date || '').slice(0, 7);
-        const description = normalizeMovementText(candidate.description);
-        const exact = data.transactions.find(tx =>
-          tx.type === candidate.type &&
-          tx.date === candidate.date &&
-          tx.category === candidate.category &&
-          sameAmount(tx.amount, candidate.amount) &&
-          normalizeMovementText(tx.description) === description &&
-          String(tx.method || '') === String(candidate.method || '')
-        );
-        if (exact) return { kind: 'exact', transaction: exact };
-
-        const recurring = data.transactions.find(tx =>
-          ['expense', 'saving'].includes(candidate.type) &&
-          tx.type === candidate.type &&
-          candidate.nature === 'fixed' &&
-          tx.nature === 'fixed' &&
-          String(tx.date || '').slice(0, 7) === candidateMonth &&
-          tx.category === candidate.category &&
-          sameAmount(tx.amount, candidate.amount) &&
-          normalizeMovementText(tx.description) === description
-        );
-        return recurring ? { kind: 'monthly', transaction: recurring } : null;
-      }
-
-      function approvePotentialDuplicate(candidate) {
-        const duplicate = findPotentialDuplicate(candidate);
-        if (!duplicate) return true;
-        const existing = duplicate.transaction;
-        const createdAgo = Date.now() - new Date(existing.createdAt || 0).getTime();
-        if (duplicate.kind === 'exact' && createdAgo >= 0 && createdAgo < 15000) {
-          alert(`Este ${movementTypeName(candidate.type)} acaba de registrarse y no se guardará otra vez.`);
-          return false;
-        }
-        const message = duplicate.kind === 'exact'
-          ? `Ya existe un ${movementTypeName(candidate.type)} igual el ${formatDate(existing.date)} por ${fmt.format(existing.amount)} en “${existing.category}”.\n\n¿Seguro que quieres registrarlo otra vez?`
-          : `Parece que ya registraste este ${movementTypeName(candidate.type)} fijo durante ${formatMonth(candidate.date)}:\n\n${existing.description || existing.category} · ${fmt.format(existing.amount)}\n\n¿Quieres guardarlo como un segundo movimiento?`;
-        return confirm(message);
-      }
-
-      function lockForm(form) {
-        if (form.dataset.submitting === '1') return null;
-        form.dataset.submitting = '1';
-        const button = form.querySelector('button[type="submit"]');
-        const oldText = button?.textContent;
-        if (button) {
-          button.disabled = true;
-          button.textContent = 'Guardando…';
-        }
-        return () => setTimeout(() => {
-          form.dataset.submitting = '0';
-          if (button) {
-            button.disabled = false;
-            button.textContent = oldText;
-          }
-        }, 650);
-      }
-
-      function createTransaction({ type, amount, date, nature, category, method, description, alreadyDeducted, debtId, debtPaymentId }) {
+      function createTransaction({ type, amount, date, nature, category, method, description, debtId, debtPaymentId }) {
         const transaction = {
           id: uid('tx'),
           type,
           amount,
           date,
-          nature: type === 'income' ? 'income' : (nature || (type === 'saving' ? 'fixed' : 'variable')),
+          nature: type === 'expense' ? (nature || 'variable') : 'income',
           category,
           method: method || 'Otro',
           description: String(description || '').trim(),
-          alreadyDeducted: type === 'saving' ? Boolean(alreadyDeducted) : false,
           createdAt: new Date().toISOString()
         };
         if (debtId) transaction.debtId = debtId;
@@ -1199,69 +1097,53 @@
 
       function addQuickTransaction(event) {
         event.preventDefault();
-        const unlock = lockForm(event.currentTarget);
-        if (!unlock) return;
-        try {
-          const type = el('quickType').value;
-          const amount = safeNumber(el('quickAmount').value);
-          if (amount <= 0) return alert('Introduce un importe mayor que cero.');
-          const candidate = {
-            type,
-            amount,
-            date: el('quickDate').value || todayISO(),
-            nature: type === 'saving' ? 'fixed' : 'variable',
-            category: el('quickCategory').value,
-            method: el('quickMethod').value,
-            description: el('quickDescription').value,
-            alreadyDeducted: type === 'saving' && el('quickSavingAlreadyDeducted').checked
-          };
-          if (!approvePotentialDuplicate(candidate)) return;
-          const transaction = createTransaction(candidate);
-          el('quickTransactionDialog').close();
-          saveData(type === 'expense' ? 'Gasto guardado' : type === 'income' ? 'Ingreso guardado' : 'Ahorro guardado');
-          refreshFilterCategories();
-          renderAll();
-          const budgetWarning = getBudgetWarning(transaction);
-          if (budgetWarning) setTimeout(() => alert(budgetWarning), 120);
-        } finally {
-          unlock();
-        }
+        const type = el('quickType').value;
+        const amount = safeNumber(el('quickAmount').value);
+        if (amount <= 0) return alert('Introduce un importe mayor que cero.');
+        const transaction = createTransaction({
+          type,
+          amount,
+          date: el('quickDate').value || todayISO(),
+          nature: 'variable',
+          category: el('quickCategory').value,
+          method: el('quickMethod').value,
+          description: el('quickDescription').value
+        });
+        el('quickTransactionDialog').close();
+        saveData(type === 'expense' ? 'Gasto guardado' : 'Ingreso guardado');
+        refreshFilterCategories();
+        renderAll();
+        const budgetWarning = getBudgetWarning(transaction);
+        if (budgetWarning) setTimeout(() => alert(budgetWarning), 120);
       }
 
       function addTransaction(event) {
         event.preventDefault();
-        const unlock = lockForm(event.currentTarget);
-        if (!unlock) return;
-        try {
-          const type = el('txType').value;
-          const amount = safeNumber(el('txAmount').value);
-          if (amount <= 0) return alert('Introduce un importe mayor que cero.');
-          const candidate = {
-            type,
-            amount,
-            date: el('txDate').value,
-            nature: el('txNature').value,
-            category: el('txCategory').value,
-            method: el('txMethod').value,
-            description: el('txDescription').value,
-            alreadyDeducted: type === 'saving' && el('txSavingAlreadyDeducted').checked
-          };
-          if (!approvePotentialDuplicate(candidate)) return;
-          const transaction = createTransaction(candidate);
+        const type = el('txType').value;
+        const amount = safeNumber(el('txAmount').value);
+        if (amount <= 0) return alert('Introduce un importe mayor que cero.');
 
-          event.target.reset();
-          el('txType').value = 'expense';
-          el('txDate').value = todayISO();
-          updateTransactionTypeUI('expense');
-          saveData('Movimiento guardado');
-          refreshFilterCategories();
-          renderAll();
+        const transaction = createTransaction({
+          type,
+          amount,
+          date: el('txDate').value,
+          nature: el('txNature').value,
+          category: el('txCategory').value,
+          method: el('txMethod').value,
+          description: el('txDescription').value
+        });
 
-          const budgetWarning = getBudgetWarning(transaction);
-          if (budgetWarning) setTimeout(() => alert(budgetWarning), 120);
-        } finally {
-          unlock();
-        }
+        event.target.reset();
+        el('txType').value = 'expense';
+        el('txDate').value = todayISO();
+        el('txNature').disabled = false;
+        fillCategorySelect(el('txCategory'), 'expense');
+        saveData('Movimiento guardado');
+        refreshFilterCategories();
+        renderAll();
+
+        const budgetWarning = getBudgetWarning(transaction);
+        if (budgetWarning) setTimeout(() => alert(budgetWarning), 120);
       }
 
       function debtRemainingInstallments(debt) {
@@ -1445,41 +1327,113 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
         return metrics;
       }
 
-      function addDebt(event) {
+      function resetDebtForm() {
+        el('debtForm').reset();
+        el('debtEditId').value = '';
+        el('debtFormTitle').textContent = 'Añadir deuda';
+        el('debtSubmitButton').textContent = 'Guardar deuda';
+        el('debtCancelEdit').classList.add('hidden');
+        el('debtApr').value = '—';
+        updateLoanPreview();
+      }
+
+      function openEditDebt(debtId) {
+        const debt = data.debts.find(item => item.id === debtId);
+        if (!debt) return;
+
+        const registeredPayments = (debt.payments || []).length;
+        const paidBefore = Math.max(0, Math.trunc(safeNumber(debt.paidInstallmentsBeforeApp)));
+        const currentPaid = paidBefore + registeredPayments;
+        const remainingInstallments = debtRemainingInstallments(debt);
+
+        el('debtEditId').value = debt.id;
+        el('debtName').value = debt.name || '';
+        el('debtOriginal').value = formatInputNumber(debt.original);
+        el('debtRemaining').value = formatInputNumber(debtRemaining(debt));
+        el('debtInstallment').value = formatInputNumber(debt.installment);
+        el('debtTotalInstallments').value = debt.totalInstallments || '';
+        el('debtPaidInstallments').value = currentPaid || '';
+        el('debtTermMonths').value = remainingInstallments || '';
+        el('debtDue').value = debt.due || '';
+        el('debtFormTitle').textContent = `Editar deuda: ${debt.name}`;
+        el('debtSubmitButton').textContent = 'Guardar cambios';
+        el('debtCancelEdit').classList.remove('hidden');
+        updateLoanPreview();
+        navigate('debts');
+        el('debtFormTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function saveDebt(event) {
         event.preventDefault();
+        const editId = el('debtEditId').value;
         const original = safeNumber(el('debtOriginal').value);
         const remaining = safeNumber(el('debtRemaining').value);
         const installment = safeNumber(el('debtInstallment').value);
         const termMonths = Math.trunc(safeNumber(el('debtTermMonths').value));
+        const totalInstallments = Math.trunc(safeNumber(el('debtTotalInstallments').value)) || null;
+        const paidInstallments = Math.trunc(safeNumber(el('debtPaidInstallments').value)) || 0;
         const metrics = calculateLoanMetrics(remaining, installment, termMonths);
 
         if (original <= 0 || remaining < 0 || remaining > original) {
           return alert('Revisa los importes: el pendiente actual no puede superar la deuda inicial.');
         }
         if (!metrics.valid) return alert(metrics.reason);
+        if (totalInstallments && paidInstallments > totalInstallments) {
+          return alert('Las cuotas pagadas no pueden superar las cuotas totales.');
+        }
 
-        data.debts.push({
-          id: uid('debt'),
+        const common = {
           name: el('debtName').value.trim(),
           original,
           initialRemaining: remaining,
           installment,
           termMonths,
-          totalInstallments: Math.trunc(safeNumber(el('debtTotalInstallments').value)) || null,
-          paidInstallmentsBeforeApp: Math.trunc(safeNumber(el('debtPaidInstallments').value)) || 0,
+          totalInstallments,
+          paidInstallmentsBeforeApp: paidInstallments,
           apr: metrics.tea * 100,
           monthlyRate: metrics.monthlyRate * 100,
           estimatedTotalRemaining: metrics.totalPaid,
           estimatedFinanceCost: metrics.financeCost,
-          due: el('debtDue').value,
-          payments: [],
-          createdAt: new Date().toISOString()
-        });
+          due: el('debtDue').value
+        };
 
-        event.target.reset();
-        el('debtApr').value = '—';
-        updateLoanPreview();
-        saveData('Deuda guardada y TEA calculada');
+        if (editId) {
+          const debt = data.debts.find(item => item.id === editId);
+          if (!debt) return alert('No se encontró la deuda que intentas editar.');
+
+          const hadRegisteredPayments = (debt.payments || []).length > 0;
+          if (hadRegisteredPayments) {
+            const proceed = confirm(
+              'Al guardar, el capital pendiente indicado será el nuevo punto de partida. ' +
+              'Los pagos anteriores seguirán visibles en Movimientos, pero no se volverán a descontar de la deuda. ¿Continuar?'
+            );
+            if (!proceed) return;
+          }
+
+          Object.assign(debt, common, {
+            payments: [],
+            updatedAt: new Date().toISOString()
+          });
+
+          // Los pagos anteriores quedan como movimientos históricos y ya forman parte
+          // del capital pendiente introducido al editar.
+          data.transactions.forEach(tx => {
+            if (tx.debtId === editId && tx.debtPaymentId) delete tx.debtPaymentId;
+          });
+
+          resetDebtForm();
+          saveData('Cambios de la deuda guardados');
+        } else {
+          data.debts.push({
+            id: uid('debt'),
+            ...common,
+            payments: [],
+            createdAt: new Date().toISOString()
+          });
+          resetDebtForm();
+          saveData('Deuda guardada y TEA calculada');
+        }
+
         renderAll();
       }
 
@@ -1547,52 +1501,35 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
 
       function registerDebtPayment(event) {
         event.preventDefault();
-        const unlock = lockForm(event.currentTarget);
-        if (!unlock) return;
-        try {
-          const debtId = el('paymentDebtId').value;
-          const debt = data.debts.find(item => item.id === debtId);
-          const amount = safeNumber(el('paymentAmount').value);
-          const date = el('paymentDate').value;
-          if (!debt || amount <= 0) return;
+        const debtId = el('paymentDebtId').value;
+        const debt = data.debts.find(item => item.id === debtId);
+        const amount = safeNumber(el('paymentAmount').value);
+        const date = el('paymentDate').value;
+        if (!debt || amount <= 0) return;
+        const maximumPayoff = debtRemaining(debt) * (1 + debtMonthlyRate(debt));
+        if (amount > maximumPayoff + 0.01) return alert(`El pago supera el importe estimado para cancelar la deuda (${fmt.format(maximumPayoff)}).`);
 
-          const paymentMonth = String(date || '').slice(0, 7);
-          const paymentInSameMonth = (debt.payments || []).find(item => String(item.date || '').slice(0, 7) === paymentMonth);
-          if (paymentInSameMonth) {
-            if (paymentInSameMonth.date === date && sameAmount(paymentInSameMonth.amount, amount)) {
-              return alert(`La cuota de “${debt.name}” por ${fmt.format(amount)} ya está registrada el ${formatDate(date)}. No se guardó otra vez.`);
-            }
-            const proceed = confirm(`Ya registraste un pago de “${debt.name}” en ${formatMonth(date)} por ${fmt.format(paymentInSameMonth.amount)}.\n\n¿El nuevo importe es un pago adicional?`);
-            if (!proceed) return;
-          }
+        const previousDue = debt.due || date;
+        const nextDue = addMonthsISO(previousDue, 1);
+        const payment = { id: uid('pay'), amount, date, previousDue, nextDue };
+        debt.payments = debt.payments || [];
+        debt.payments.push(payment);
+        debt.due = nextDue;
+        createTransaction({
+          type: 'expense',
+          amount,
+          date,
+          nature: 'fixed',
+          category: 'Pago de deudas',
+          method: 'Transferencia',
+          description: `Pago: ${debt.name}`,
+          debtId,
+          debtPaymentId: payment.id
+        });
 
-          const maximumPayoff = debtRemaining(debt) * (1 + debtMonthlyRate(debt));
-          if (amount > maximumPayoff + 0.01) return alert(`El pago supera el importe estimado para cancelar la deuda (${fmt.format(maximumPayoff)}).`);
-
-          const previousDue = debt.due || date;
-          const nextDue = addMonthsISO(previousDue, 1);
-          const payment = { id: uid('pay'), amount, date, previousDue, nextDue };
-          debt.payments = debt.payments || [];
-          debt.payments.push(payment);
-          debt.due = nextDue;
-          createTransaction({
-            type: 'expense',
-            amount,
-            date,
-            nature: 'fixed',
-            category: 'Pago de deudas',
-            method: 'Transferencia',
-            description: `Pago: ${debt.name}`,
-            debtId,
-            debtPaymentId: payment.id
-          });
-
-          el('paymentDialog').close();
-          saveData(paymentInSameMonth ? 'Pago adicional registrado' : 'Pago de deuda registrado');
-          renderAll();
-        } finally {
-          unlock();
-        }
+        el('paymentDialog').close();
+        saveData('Pago de deuda registrado');
+        renderAll();
       }
 
       function deleteDebt(id) {
@@ -1616,12 +1553,9 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
         const txs = getMonthTransactions();
         const incomeTx = txs.filter(tx => tx.type === 'income');
         const expenseTx = txs.filter(tx => tx.type === 'expense');
-        const savingTx = txs.filter(tx => tx.type === 'saving');
         const income = incomeTx.reduce((sum, tx) => sum + safeNumber(tx.amount), 0);
         const expenses = expenseTx.reduce((sum, tx) => sum + safeNumber(tx.amount), 0);
-        const savings = savingTx.reduce((sum, tx) => sum + safeNumber(tx.amount), 0);
-        const savingsCashImpact = savingTx.filter(tx => !tx.alreadyDeducted).reduce((sum, tx) => sum + safeNumber(tx.amount), 0);
-        return { txs, incomeTx, expenseTx, savingTx, income, expenses, savings, savingsCashImpact, balance: income - expenses - savingsCashImpact };
+        return { txs, incomeTx, expenseTx, income, expenses, balance: income - expenses };
       }
 
       function renderAll() {
@@ -1735,13 +1669,11 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
 
         el('incomeTotal').textContent = fmt.format(stats.income);
         el('expenseTotal').textContent = fmt.format(stats.expenses);
-        el('savingTotal').textContent = fmt.format(stats.savings);
         el('balanceTotal').textContent = fmt.format(stats.balance);
         el('balanceTotal').className = `value ${stats.balance < 0 ? 'expense' : stats.balance > 0 ? 'income' : ''}`;
         el('debtTotal').textContent = fmt.format(totalDebt);
         el('incomeCount').textContent = `${stats.incomeTx.length} ${stats.incomeTx.length === 1 ? 'registro' : 'registros'}`;
         el('expenseCount').textContent = `${stats.expenseTx.length} ${stats.expenseTx.length === 1 ? 'registro' : 'registros'}`;
-        el('savingCount').textContent = `${stats.savingTx.length} ${stats.savingTx.length === 1 ? 'registro' : 'registros'}`;
         el('debtCount').textContent = `${activeDebts.length} ${activeDebts.length === 1 ? 'deuda activa' : 'deudas activas'}`;
 
         const ratio = stats.income > 0 ? (stats.expenses / stats.income) * 100 : stats.expenses > 0 ? 100 : 0;
@@ -1757,8 +1689,7 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
         } else if (ratio > 100) {
           el('spendingHint').textContent = `Estás gastando ${fmt.format(stats.expenses - stats.income)} más de lo que ingresas.`;
         } else {
-          const savingNote = stats.savings > 0 ? ` Has separado ${fmt.format(stats.savings)} como ahorro.` : '';
-          el('spendingHint').textContent = `Te queda el ${fmtNumber.format(100 - ratio)}% de tus ingresos después de gastos.${savingNote}`;
+          el('spendingHint').textContent = `Te queda el ${fmtNumber.format(100 - ratio)}% de tus ingresos después de gastos.`;
         }
 
         renderHealth(stats, ratio, totalDebt);
@@ -1784,9 +1715,7 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
           } else {
             cls += ' good';
             title = '🟢 Este mes tienes margen positivo';
-            text = stats.savings > 0
-              ? `Tu balance disponible es de ${fmt.format(stats.balance)} y ya has separado ${fmt.format(stats.savings)} como ahorro.`
-              : `Tu balance actual es de ${fmt.format(stats.balance)}. Destina una parte a un colchón y otra a reducir deuda cara.`;
+            text = `Tu balance actual es de ${fmt.format(stats.balance)}. Destina una parte a un colchón y otra a reducir deuda cara.`;
           }
         }
 
@@ -1831,10 +1760,8 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
         if (stats.balance < 0) {
           const weeklyCut = Math.abs(stats.balance) / 4.33;
           recs.push(`Para equilibrar este mes necesitas recortar aproximadamente ${fmt.format(weeklyCut)} por semana o conseguir un ingreso adicional equivalente.`);
-        } else if (stats.income > 0 && stats.balance > 0 && stats.savings <= 0) {
+        } else if (stats.income > 0 && stats.balance > 0) {
           recs.push(`Separa al menos ${fmt.format(Math.min(stats.balance * 0.2, stats.balance))} del saldo positivo para un pequeño fondo de emergencia.`);
-        } else if (stats.savings > 0) {
-          recs.push(`Este mes has separado ${fmt.format(stats.savings)} como ahorro. No lo cuentes como dinero disponible para ocio o compras.`);
         }
         if (stats.income > 0 && variableExpenses > stats.income * 0.35) {
           recs.push(`Tus gastos variables suman ${fmt.format(variableExpenses)}. Fija un límite semanal de ${fmt.format((stats.income * 0.30) / 4.33)} para bajar ese bloque hacia el 30% de tus ingresos.`);
@@ -1883,10 +1810,10 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
           <div class="item">
             <div>
               <div class="item-title">${escapeHTML(tx.description || tx.category)}</div>
-              <div class="item-meta">${formatDate(tx.date)} · ${escapeHTML(tx.category)} · ${escapeHTML(tx.method || 'Otro')} · ${tx.type === 'expense' ? (tx.nature === 'fixed' ? 'Fijo' : 'Variable') : tx.type === 'income' ? 'Ingreso' : `Ahorro${tx.alreadyDeducted ? ' · ya descontado' : ' · reduce disponible'}`}</div>
+              <div class="item-meta">${formatDate(tx.date)} · ${escapeHTML(tx.category)} · ${escapeHTML(tx.method || 'Otro')} · ${tx.type === 'expense' ? (tx.nature === 'fixed' ? 'Fijo' : 'Variable') : 'Ingreso'}</div>
             </div>
             <div>
-              <div class="item-amount ${tx.type === 'expense' ? 'expense' : tx.type === 'income' ? 'income' : 'saving'}">${tx.type === 'expense' ? '−' : tx.type === 'income' ? '+' : '→ '}${fmt.format(tx.amount)}</div>
+              <div class="item-amount ${tx.type === 'expense' ? 'expense' : 'income'}">${tx.type === 'expense' ? '−' : '+'}${fmt.format(tx.amount)}</div>
               <div class="item-actions"><button class="icon-btn" data-delete-tx="${tx.id}">Eliminar</button></div>
             </div>
           </div>
@@ -1898,7 +1825,7 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
       function refreshFilterCategories() {
         const select = el('filterCategory');
         const current = select.value;
-        const categories = [...new Set([...CATEGORIES.expense, ...CATEGORIES.income, ...CATEGORIES.saving])].sort((a,b) => a.localeCompare(b, 'es'));
+        const categories = [...new Set([...CATEGORIES.expense, ...CATEGORIES.income])].sort((a,b) => a.localeCompare(b, 'es'));
         select.innerHTML = '<option value="all">Todas las categorías</option>' + categories.map(c => `<option value="${escapeAttr(c)}">${escapeHTML(c)}</option>`).join('');
         if ([...select.options].some(o => o.value === current)) select.value = current;
       }
@@ -1983,6 +1910,7 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
               </div>
               <div class="btn-row">
                 <button class="btn small" data-pay-debt="${debt.id}" ${remaining <= 0 ? 'disabled' : ''}>Registrar pago</button>
+                <button class="btn secondary small" data-edit-debt="${debt.id}">Editar</button>
                 <button class="btn secondary small" data-delete-debt="${debt.id}">Eliminar</button>
               </div>
               ${months ? '<p class="item-meta">El total futuro usa las cuotas pendientes declaradas. La TEA es una estimación y puede diferir del contrato.</p>' : ''}
@@ -1991,6 +1919,7 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
         }).join('');
 
         container.querySelectorAll('[data-pay-debt]').forEach(button => button.addEventListener('click', () => openPaymentDialog(button.dataset.payDebt)));
+        container.querySelectorAll('[data-edit-debt]').forEach(button => button.addEventListener('click', () => openEditDebt(button.dataset.editDebt)));
         container.querySelectorAll('[data-delete-debt]').forEach(button => button.addEventListener('click', () => deleteDebt(button.dataset.deleteDebt)));
       }
 
@@ -2045,11 +1974,11 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
       }
 
       function exportCSV() {
-        const headers = ['Fecha','Tipo','Categoría','Clase','Descripción','Forma de pago','Ya descontado del ingreso','Importe EUR'];
+        const headers = ['Fecha','Tipo','Categoría','Clase','Descripción','Forma de pago','Importe EUR'];
         const rows = data.transactions
           .slice()
           .sort((a,b) => (a.date || '').localeCompare(b.date || ''))
-          .map(tx => [tx.date, tx.type === 'income' ? 'Ingreso' : tx.type === 'saving' ? 'Ahorro' : 'Gasto', tx.category, tx.nature, tx.description || '', tx.method || '', tx.type === 'saving' && tx.alreadyDeducted ? 'Sí' : 'No', tx.amount]);
+          .map(tx => [tx.date, tx.type === 'income' ? 'Ingreso' : 'Gasto', tx.category, tx.nature, tx.description || '', tx.method || '', tx.amount]);
         const csv = '\ufeff' + [headers, ...rows].map(row => row.map(csvCell).join(';')).join('\n');
         downloadFile(`movimientos-finanzas-${todayISO()}.csv`, csv, 'text/csv;charset=utf-8');
         showToast('CSV descargado');
@@ -2097,13 +2026,6 @@ Te quedan ${fmt.format(limit - spent)} disponibles.`;
         el('monthPicker').value = selectedMonth;
         renderAll();
         showToast('Todos los datos fueron borrados');
-      }
-
-      function formatMonth(value) {
-        const month = String(value || '').slice(0, 7);
-        if (!/^\d{4}-\d{2}$/.test(month)) return 'ese mes';
-        const [year, mon] = month.split('-').map(Number);
-        return new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(new Date(year, mon - 1, 1));
       }
 
       function formatDate(value) {
